@@ -37,12 +37,5 @@ class SlackUserSubscription(Base):
 
 class SlackUserFilters(Base):
     __tablename__ = "slack_user_min_age"
-
-    id = Column(
-        String,
-        nullable=False,
-        primary_key=True,
-        server_default=text("uuid_generate_v4()"),
-    )
     slack_id = Column(String, primary_key=True, nullable=False)
     min_age = Column(Enum("18", "45", name="user_age_group_types"))
