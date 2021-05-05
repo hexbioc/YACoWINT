@@ -29,4 +29,4 @@ local.server:
 
 services:
 	@. .envrc
-	docker-compose up --build
+	docker-compose up --build -d
