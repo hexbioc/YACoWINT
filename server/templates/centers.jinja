@@ -1,0 +1,15 @@
+{% for center in centers %}
+
+*{{ center['name'] }}:* _{{ center['address'] }}, {{ center['district_name'] }}, {{ center['state_name'] }} - {{ center['pincode'] }}_
+{% for session in center['sessions'] -%}
+> *Date:* {{ session['date'] }}
+> *Minimum Age:* {{ session['min_age_limit'] }}
+> *Vaccine:* {{ session['vaccine'] }}
+> *Available:* {{ session['available_capacity'] }}
+> *Slots:*
+{% for slot in session['slots'] -%}
+> ‣ {{ slot }}
+{% endfor -%}
+>
+{% endfor -%}
+{% endfor -%}

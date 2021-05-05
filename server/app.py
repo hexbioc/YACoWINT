@@ -1,6 +1,7 @@
 import json
 
 from fastapi import Depends, FastAPI, Request, Response, status
+from jinja2 import Environment, PackageLoader, select_autoescape
 from sqlalchemy.orm import Session
 
 from server import config
@@ -8,10 +9,17 @@ from server.cowin.availability import district_by_calendar
 from server.cowin.metadata import district_options, state_options
 from server.slack import client, modals, signature_verifier
 from server.storage import crud, models, session
-from server.utils import format_centers_markdown
 
+# Setup Jinja2 environment
+jinja2_env = Environment(
+    loader=PackageLoader("server", "templates"),
+    autoescape=select_autoescape(["html", "xml"]),
+)
+
+# Setup database
 models.Base.metadata.create_all(bind=session.engine)
 
+# Create application
 app = FastAPI()
 
 
@@ -121,12 +129,15 @@ def notify(db: Session = Depends(session.get_db)):
         if not available_centers:
             continue
 
-        centers_markdown = format_centers_markdown(available_centers)
+        template = jinja2_env.get_template("centers.jinja")
+        renderred_centers = template.render(centers=available_centers)
         for subscription in region.subscriptions:
-            intro = (
-                f"<@{subscription.slack_id}>, found a few slots "
-                f"over the next {config.TRACK_WEEKS_DEFAULT} week(s):\n"
+            template = jinja2_env.get_template("notification.jinja")
+            text = template.render(
+                subscription=subscription,
+                config=config,
+                renderred_centers=renderred_centers,
             )
             response = client.conversations_open(users=[subscription.slack_id])
             channel_id = response["channel"]["id"]
-            client.chat_postMessage(channel=channel_id, text=intro + centers_markdown)
+            client.chat_postMessage(channel=channel_id, text=text)

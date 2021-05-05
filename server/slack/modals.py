@@ -64,8 +64,8 @@ def subscription_modal(state_option=None, district_option=None):
 def successful_subscription_modal(subscription: SlackUserSubscription):
     response = (
         "Subscribed! You will be notified on Slack whenever an available slot is found"
-        f" over the next {config.TRACK_WEEKS_DEFAULT} week(s) period each day, in"
-        " you chosen region. To unsubscribe from all notifications, run `/cowin unsub`."
+        f" over the next {config.TRACK_WEEKS_DEFAULT} week(s) each day, in your"
+        " chosen region. To unsubscribe from all notifications, run `/cowin unsub`."
     )
 
     return {
