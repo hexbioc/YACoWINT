@@ -3,5 +3,8 @@
 }
 
 {$CADDY_HOST} {
+    respond /notify 401 {
+        close
+    }
     reverse_proxy server:80
 }
