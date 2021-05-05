@@ -1,11 +1,14 @@
 import requests
 from cachetools import TTLCache, cached
 
+from server import config
 
-@cached(TTLCache(maxsize=10, ttl=300))
+
+@cached(TTLCache(maxsize=10, ttl=900))
 def state_options():
     response = requests.get(
-        "https://cdn-api.co-vin.in/api/v2/admin/location/states"
+        "https://cdn-api.co-vin.in/api/v2/admin/location/states",
+        headers={"User-Agent": config.USER_AGENT},
     ).json()
     options = [
         {
@@ -18,10 +21,11 @@ def state_options():
     return options
 
 
-@cached(TTLCache(maxsize=20, ttl=300))
+@cached(TTLCache(maxsize=20, ttl=900))
 def district_options(state_id):
     response = requests.get(
-        f"https://cdn-api.co-vin.in/api/v2/admin/location/districts/{state_id}"
+        f"https://cdn-api.co-vin.in/api/v2/admin/location/districts/{state_id}",
+        headers={"User-Agent": config.USER_AGENT},
     ).json()
     options = [
         {

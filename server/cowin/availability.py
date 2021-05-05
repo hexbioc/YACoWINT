@@ -15,6 +15,7 @@ def district_by_calendar(district_id, weeks=config.TRACK_WEEKS_DEFAULT):
             "https://cdn-api.co-vin.in/api/v2/appointment/"
             "sessions/public/calendarByDistrict",
             params=dict(district_id=district_id, date=date),
+            headers={"User-Agent": config.USER_AGENT},
         ).json()
 
         # If there are no centers, can stop here itself
