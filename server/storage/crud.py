@@ -17,9 +17,7 @@ def add_region(db: Session, state_id: str, district_id: str):
     return region
 
 
-def add_subscription(
-    db: Session, slack_id: str, state_id: str, district_id: str,
-):
+def add_subscription(db: Session, slack_id: str, state_id: str, district_id: str):
     region = (
         db.query(models.TrackingRegion)
         .filter_by(state_id=state_id, district_id=district_id)
@@ -42,6 +40,24 @@ def add_subscription(
     return subscription
 
 
+def add_age_filter(db: Session, slack_id: str, min_age: str):
+    user_filter = (
+        db.query(models.SlackUserFilters).filter_by(slack_id=slack_id, min_age=min_age).one_or_none()
+    )
+    if user_filter:
+        return user_filter
+    user_filters = models.SlackUserFilters(slack_id=slack_id, min_age=min_age)
+    db.add(user_filters)
+    db.commit()
+    db.refresh(user_filters)
+
+    return user_filters
+
+
 def remove_subscriptions(db: Session, slack_id: str):
     db.query(models.SlackUserSubscription).filter_by(slack_id=slack_id).delete()
     db.commit()
+
+
+def get_filters_by_slack_id(db: Session, slack_id: str):
+    return db.query(models.SlackUserFilters).filter_by(slack_id=slack_id).one_or_none()

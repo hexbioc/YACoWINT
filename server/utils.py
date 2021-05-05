@@ -48,3 +48,16 @@ def format_centers_markdown(available_centers):
             )
 
     return "\n".join(lines)
+
+
+def age_filter(available_centers, age):
+    filtered = []
+    for center in available_centers:
+        f_sessions = []
+        for session in center.sessions:
+            if session.min_age_limit == age:
+                f_sessions.append(session)
+        if len(f_sessions):
+            center["sessions"] = f_sessions
+            filtered.append(center)
+    return filtered

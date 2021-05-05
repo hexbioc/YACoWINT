@@ -1,10 +1,10 @@
 import json
 
 from server import config
-from server.storage.models import SlackUserSubscription
+from server.storage.models import SlackUserSubscription, SlackUserFilters
 
 
-def subscription_modal(state_option=None, district_option=None):
+def subscription_modal(state_option=None, district_option=None, age_option=None):
     blocks = [
         {
             "type": "actions",
@@ -45,9 +45,33 @@ def subscription_modal(state_option=None, district_option=None):
                 ],
             },
         )
+
+    if district_option is not None:
+        blocks.append(
+            {
+                "type": "actions",
+                "elements": [
+                    {
+                        "type": "external_select",
+                        "placeholder": {
+                            "type": "plain_text",
+                            "text": "Pick minimum age limit",
+                            "emoji": True,
+                        },
+                        "action_id": "age_select",
+                        **(
+                            {"initial_option": age_option}
+                            if age_option
+                            else {}
+                        ),
+                    }
+                ],
+            },
+        )
+
     view = {
         "type": "modal",
-        "title": {"type": "plain_text", "text": "Select Region", "emoji": True},
+        "title": {"type": "plain_text", "text": "Select Region and filters", "emoji": True},
         "close": {"type": "plain_text", "text": "Cancel", "emoji": True},
         "blocks": blocks,
         "private_metadata": json.dumps(
@@ -55,9 +79,8 @@ def subscription_modal(state_option=None, district_option=None):
         ),
     }
 
-    if district_option is not None:
+    if age_option is not None:
         view["submit"] = {"type": "plain_text", "text": "Subscribe", "emoji": True}
-
     return view
 
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy import Column, ForeignKey, String, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import text
 
@@ -33,3 +33,16 @@ class SlackUserSubscription(Base):
     region_id = Column(String, ForeignKey("tracking_regions.id"))
 
     region = relationship("TrackingRegion", back_populates="subscriptions")
+
+
+class SlackUserFilters(Base):
+    __tablename__ = "slack_user_min_age"
+
+    id = Column(
+        String,
+        nullable=False,
+        primary_key=True,
+        server_default=text("uuid_generate_v4()"),
+    )
+    slack_id = Column(String, primary_key=True, nullable=False)
+    min_age = Column(Enum("18", "45", name="user_age_group_types"))

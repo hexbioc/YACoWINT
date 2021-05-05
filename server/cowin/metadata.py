@@ -32,3 +32,13 @@ def district_options(state_id):
     ]
 
     return options
+
+
+def age_options():
+    return [{
+                "text": {"type": "plain_text", "text": '18-45'},
+                "value": "18",
+            },{ 
+                "text": {"type": "plain_text", "text": '45+'},
+                "value": "45",
+            }]
