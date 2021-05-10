@@ -1,7 +1,7 @@
 import json
 
 from server import config
-from server.storage.models import SlackUserSubscription, SlackUserFilters
+from server.storage.models import SlackUserSubscription
 
 
 def subscription_modal(state_option=None, district_option=None, age_option=None):
@@ -59,11 +59,7 @@ def subscription_modal(state_option=None, district_option=None, age_option=None)
                             "emoji": True,
                         },
                         "action_id": "age_select",
-                        **(
-                            {"initial_option": age_option}
-                            if age_option
-                            else {}
-                        ),
+                        **({"initial_option": age_option} if age_option else {}),
                     }
                 ],
             },
@@ -71,7 +67,11 @@ def subscription_modal(state_option=None, district_option=None, age_option=None)
 
     view = {
         "type": "modal",
-        "title": {"type": "plain_text", "text": "Select Region and filters", "emoji": True},
+        "title": {
+            "type": "plain_text",
+            "text": "Select Region",
+            "emoji": True,
+        },
         "close": {"type": "plain_text", "text": "Cancel", "emoji": True},
         "blocks": blocks,
         "private_metadata": json.dumps(

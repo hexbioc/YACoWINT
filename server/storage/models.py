@@ -31,11 +31,8 @@ class SlackUserSubscription(Base):
     )
     slack_id = Column(String, index=True, nullable=False)
     region_id = Column(String, ForeignKey("tracking_regions.id"))
+    min_age = Column(String)
 
     region = relationship("TrackingRegion", back_populates="subscriptions")
 
 
-class SlackUserFilters(Base):
-    __tablename__ = "slack_user_min_age"
-    slack_id = Column(String, primary_key=True, nullable=False)
-    min_age = Column(Enum("18", "45", name="user_age_group_types"))

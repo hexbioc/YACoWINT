@@ -52,6 +52,7 @@ async def interact(request: Request, db: Session = Depends(session.get_db)):
             payload["user"]["id"],
             metadata["state_option"]["value"],
             metadata["district_option"]["value"],
+            metadata['age_option']["value"]
         )
         # Attempt to add a filter
         age_filter = crud.add_age_filter(
