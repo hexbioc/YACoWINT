@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, String, Enum
+from sqlalchemy import Column, Enum, ForeignKey, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import text
 
@@ -34,5 +34,3 @@ class SlackUserSubscription(Base):
     min_age = Column(String)
 
     region = relationship("TrackingRegion", back_populates="subscriptions")
-
-

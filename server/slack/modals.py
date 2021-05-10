@@ -67,11 +67,7 @@ def subscription_modal(state_option=None, district_option=None, age_option=None)
 
     view = {
         "type": "modal",
-        "title": {
-            "type": "plain_text",
-            "text": "Select Region",
-            "emoji": True,
-        },
+        "title": {"type": "plain_text", "text": "Select Region", "emoji": True,},
         "close": {"type": "plain_text", "text": "Cancel", "emoji": True},
         "blocks": blocks,
         "private_metadata": json.dumps(

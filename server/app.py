@@ -5,10 +5,10 @@ from sqlalchemy.orm import Session
 
 from server import config
 from server.cowin.availability import district_by_calendar
-from server.cowin.metadata import district_options, state_options, age_options
+from server.cowin.metadata import age_options, district_options, state_options
 from server.slack import client, modals, signature_verifier
 from server.storage import crud, models, session
-from server.utils import format_centers_markdown, age_filter
+from server.utils import age_filter, format_centers_markdown
 
 models.Base.metadata.create_all(bind=session.engine)
 
@@ -52,7 +52,7 @@ async def interact(request: Request, db: Session = Depends(session.get_db)):
             payload["user"]["id"],
             metadata["state_option"]["value"],
             metadata["district_option"]["value"],
-            metadata['age_option']["value"]
+            metadata["age_option"]["value"],
         )
         # Attempt to add a filter
         age_filter = crud.add_age_filter(
@@ -81,7 +81,7 @@ async def interact(request: Request, db: Session = Depends(session.get_db)):
                     district_option=action["selected_option"],
                 ),
             )
-        
+
         if action["action_id"] == "age_select":
             client.views_update(
                 view_id=view["id"],
