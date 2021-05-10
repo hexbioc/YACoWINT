@@ -18,11 +18,15 @@ lint:
 	@. venv/bin/activate
 	flake8 server/
 
-start:
+local.database:
+	@. .envrc
+	docker-compose run -p"5432:5432" database
+
+local.server:
 	@. venv/bin/activate
 	. .envrc
 	uvicorn --reload --port 8080 "server.app:app"
 
 services:
 	@. .envrc
-	docker-compose up --build
+	docker-compose up --build -d
