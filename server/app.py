@@ -11,8 +11,6 @@ from server.cowin.utils import age_filter
 from server.slack import client, modals, signature_verifier
 from server.storage import crud, models, session
 
-# from server.utils import age_filter, format_centers_markdown
-
 # Setup Jinja2 environment
 jinja2_env = Environment(
     loader=PackageLoader("server", "templates"),
@@ -37,7 +35,6 @@ async def subscribe(request: Request, db: Session = Depends(session.get_db)):
         return Response(status_code=status.HTTP_403_FORBIDDEN)
 
     data = await request.form()
-    print(data.get("text", ""))
     if data.get("text", "").lower().strip() == "unsub":
         crud.remove_subscriptions(db, data["user_id"])
         return Response("Unsubscribed!", status_code=status.HTTP_200_OK)
