@@ -31,5 +31,6 @@ class SlackUserSubscription(Base):
     )
     slack_id = Column(String, index=True, nullable=False)
     region_id = Column(String, ForeignKey("tracking_regions.id"))
+    min_age = Column(String)
 
     region = relationship("TrackingRegion", back_populates="subscriptions")

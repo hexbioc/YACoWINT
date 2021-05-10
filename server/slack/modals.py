@@ -4,7 +4,7 @@ from server import config
 from server.storage.models import SlackUserSubscription
 
 
-def subscription_modal(state_option=None, district_option=None):
+def subscription_modal(state_option=None, district_option=None, age_option=None):
     blocks = [
         {
             "type": "actions",
@@ -45,19 +45,48 @@ def subscription_modal(state_option=None, district_option=None):
                 ],
             },
         )
+
+    if district_option is not None and state_option is not None:
+        blocks.append(
+            {
+                "type": "actions",
+                "elements": [
+                    {
+                        "type": "static_select",
+                        "placeholder": {"type": "plain_text", "text": "Age limit"},
+                        "action_id": "age_select",
+                        "options": [
+                            {
+                                "text": {"type": "plain_text", "text": "18-45"},
+                                "value": "18",
+                            },
+                            {
+                                "text": {"type": "plain_text", "text": "45+"},
+                                "value": "45",
+                            },
+                        ],
+                        **({"initial_option": age_option} if age_option else {}),
+                    }
+                ],
+            },
+        )
+
     view = {
         "type": "modal",
         "title": {"type": "plain_text", "text": "Select Region", "emoji": True},
         "close": {"type": "plain_text", "text": "Cancel", "emoji": True},
         "blocks": blocks,
         "private_metadata": json.dumps(
-            dict(state_option=state_option, district_option=district_option)
+            dict(
+                state_option=state_option,
+                district_option=district_option,
+                age_option=age_option,
+            )
         ),
     }
 
-    if district_option is not None:
+    if age_option is not None:
         view["submit"] = {"type": "plain_text", "text": "Subscribe", "emoji": True}
-
     return view
 
 

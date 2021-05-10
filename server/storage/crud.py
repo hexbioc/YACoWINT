@@ -18,7 +18,7 @@ def add_region(db: Session, state_id: str, district_id: str):
 
 
 def add_subscription(
-    db: Session, slack_id: str, state_id: str, district_id: str,
+    db: Session, slack_id: str, state_id: str, district_id: str, min_age: str
 ):
     region = (
         db.query(models.TrackingRegion)
@@ -33,7 +33,9 @@ def add_subscription(
         if subscription.slack_id == slack_id:
             return subscription
 
-    subscription = models.SlackUserSubscription(slack_id=slack_id, region_id=region.id)
+    subscription = models.SlackUserSubscription(
+        slack_id=slack_id, region_id=region.id, min_age=min_age
+    )
 
     db.add(subscription)
     db.commit()
