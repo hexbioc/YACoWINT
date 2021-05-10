@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 
 from server import config
 from server.cowin.availability import district_by_calendar
-from server.cowin.metadata import age_options, district_options, state_options
+from server.cowin.metadata import district_options, state_options
+from server.cowin.utils import age_filter
 from server.slack import client, modals, signature_verifier
 from server.storage import crud, models, session
 
@@ -36,6 +37,7 @@ async def subscribe(request: Request, db: Session = Depends(session.get_db)):
         return Response(status_code=status.HTTP_403_FORBIDDEN)
 
     data = await request.form()
+    print(data.get("text", ""))
     if data.get("text", "").lower().strip() == "unsub":
         crud.remove_subscriptions(db, data["user_id"])
         return Response("Unsubscribed!", status_code=status.HTTP_200_OK)
@@ -64,16 +66,14 @@ async def interact(request: Request, db: Session = Depends(session.get_db)):
             metadata["district_option"]["value"],
             metadata["age_option"]["value"],
         )
-        # Attempt to add a filter
-        # age_filter = crud.add_age_filter(
-        #     db, payload["user"]["id"], metadata["age_option"]["value"]
-        # )
+
         return {
             "response_action": "update",
             "view": modals.successful_subscription_modal(subscription),
         }
 
     for action in payload["actions"]:
+
         if action["action_id"] == "state_select":
             client.views_update(
                 view_id=view["id"],
@@ -93,10 +93,18 @@ async def interact(request: Request, db: Session = Depends(session.get_db)):
             )
 
         if action["action_id"] == "age_select":
+            state_option = json.loads(view["private_metadata"]).get("state_option")
+            district_option = json.loads(view["private_metadata"]).get(
+                "district_option"
+            )
             client.views_update(
                 view_id=view["id"],
                 hash=view["hash"],
-                view=modals.subscription_modal(age_option=action["selected_option"]),
+                view=modals.subscription_modal(
+                    state_option=state_option,
+                    district_option=district_option,
+                    age_option=action["selected_option"],
+                ),
             )
 
     return Response(status_code=status.HTTP_200_OK)
@@ -121,8 +129,6 @@ async def options(request: Request):
         state_option = metadata["state_option"]
         options = district_options(state_option["value"])
 
-    elif action_id == "age_select":
-        options = age_options()
     return dict(
         options=[
             option
@@ -139,14 +145,17 @@ def notify(db: Session = Depends(session.get_db)):
     for region in regions:
         if not len(region.subscriptions):
             continue
-
         available_centers = district_by_calendar(region.district_id)
+
         if not available_centers:
             continue
 
-        template = jinja2_env.get_template("centers.jinja")
-        renderred_centers = template.render(centers=available_centers)
         for subscription in region.subscriptions:
+            available_centers = age_filter(available_centers, subscription.min_age)
+            if not available_centers:
+                continue
+            template = jinja2_env.get_template("centers.jinja")
+            renderred_centers = template.render(centers=available_centers)
             template = jinja2_env.get_template("notification.jinja")
             text = template.render(
                 subscription=subscription,
@@ -154,25 +163,6 @@ def notify(db: Session = Depends(session.get_db)):
                 renderred_centers=renderred_centers,
             )
             response = client.conversations_open(users=[subscription.slack_id])
-            # filters = crud.get_filters_by_slack_id(db, subscription.slack_id)
-            # filtered_centers = available_centers
-
-            # if filters.min_age:
-            #     filtered_centers = age_filter(available_centers, filters.min_age)
-
-            # centers_markdown = format_centers_markdown(filtered_centers)
             channel_id = response["channel"]["id"]
+
             client.chat_postMessage(channel=channel_id, text=text)
-
-
-# def age_filter(available_centers, age):
-#     filtered = []
-#     for center in available_centers:
-#         f_sessions = []
-#         for session in center.sessions:
-#             if session.min_age_limit == age:
-#                 f_sessions.append(session)
-#         if len(f_sessions):
-#             center["sessions"] = f_sessions
-#             filtered.append(center)
-#     return filtered

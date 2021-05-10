@@ -46,19 +46,25 @@ def subscription_modal(state_option=None, district_option=None, age_option=None)
             },
         )
 
-    if district_option is not None:
+    if district_option is not None and state_option is not None:
         blocks.append(
             {
                 "type": "actions",
                 "elements": [
                     {
-                        "type": "external_select",
-                        "placeholder": {
-                            "type": "plain_text",
-                            "text": "Pick minimum age limit",
-                            "emoji": True,
-                        },
+                        "type": "static_select",
+                        "placeholder": {"type": "plain_text", "text": "Age limit"},
                         "action_id": "age_select",
+                        "options": [
+                            {
+                                "text": {"type": "plain_text", "text": "18-45"},
+                                "value": "18",
+                            },
+                            {
+                                "text": {"type": "plain_text", "text": "45+"},
+                                "value": "45",
+                            },
+                        ],
                         **({"initial_option": age_option} if age_option else {}),
                     }
                 ],
@@ -71,7 +77,11 @@ def subscription_modal(state_option=None, district_option=None, age_option=None)
         "close": {"type": "plain_text", "text": "Cancel", "emoji": True},
         "blocks": blocks,
         "private_metadata": json.dumps(
-            dict(state_option=state_option, district_option=district_option)
+            dict(
+                state_option=state_option,
+                district_option=district_option,
+                age_option=age_option,
+            )
         ),
     }
 
